@@ -13,6 +13,8 @@ dotenv.config();
 import router from "./routes/routes.js";
 import "./config/passportConfig.js";
 
+mongoose.connect(`${process.env.DATABASE_URL}`);
+
 const app = express();
 
 app.use(cors());
@@ -22,21 +24,13 @@ app.use(cookieParser());
 app.use(
   session({
     secret: "spotify-pods",
-    resave: true,
+    resave: false,
     saveUninitialized: true,
-    name: "Jake",
-    cookie: {
-      maxAge: 1000 * 60 * 60, //1hr
-      secure: false,
-      httpOnly: true,
-    },
   })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-mongoose.connect(`${process.env.DATABASE_URL}`);
 
 app.use("/", router);
 

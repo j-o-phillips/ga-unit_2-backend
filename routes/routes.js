@@ -5,7 +5,15 @@ const router = express.Router();
 import cookieParser from "cookie-parser";
 import cookies from "js-cookie";
 
-router.use(cors());
+import { searchSpotify } from "../controllers/searchSpotify.js";
+
+router.use(
+  cors({
+    origin: "http://localhost:8080", // Replace with your client's origin
+    credentials: true, // Enable credentials (cookies) in CORS
+  })
+);
+
 router.use(cookieParser());
 
 //! ROUTES
@@ -24,13 +32,26 @@ router.get(
     //successful authentication, redirect to client
     let data = JSON.stringify(req.user);
     res.cookie("userCred", data, { httpOnly: false });
-    res.redirect("http://localhost:8080/dashboard");
+    res.redirect("http://localhost:8080/home");
   }
 );
+//logout
+router.get("/logout", (req, res) => {
+  console.log("logout hit");
+  req.logout(() => {
+    res.redirect("http://localhost:8080");
+  });
+});
 
-router.get("/", (req, res) => {
-  console.log("root hit");
-  console.log(req.session.user);
+//? Spotify Search
+//search
+router.get("/search/:track", async (req, res) => {
+  const { track } = req.params;
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = cookieJson.accessToken;
+
+  const result = await searchSpotify(track, accessToken);
+  res.json(result);
 });
 
 export default router;

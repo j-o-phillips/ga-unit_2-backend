@@ -2,19 +2,11 @@ import passport from "passport";
 import { Strategy as SpotifyStrategy } from "passport-spotify";
 import dotenv from "dotenv";
 dotenv.config();
+import { User } from "../models/user.js";
 
 const redirectUri = process.env.SPOTIFY_CALLBACK;
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-
-//serialize and deserialize  user
-passport.serializeUser((user, cb) => {
-  cb(null, user);
-});
-
-passport.deserializeUser((user, cb) => {
-  cb(null, user);
-});
 
 //strategy config
 passport.use(
@@ -24,16 +16,43 @@ passport.use(
       clientSecret: clientSecret,
       callbackURL: redirectUri,
     },
-    (accessToken, refreshToken, expires_in, profile, cb) => {
-      process.nextTick(() => {
-        let user = {
+    async (accessToken, refreshToken, expires_in, profile, cb) => {
+      // process.nextTick(() => {
+      //   let user = {
+      //     userId: profile.id,
+      //     accessToken: accessToken,
+      //     refreshToken: refreshToken,
+      //   };
+      //   console.log(user);
+      //   return cb(null, user);
+      // });
+      try {
+        let user = await User.findOne({ userId: profile.id });
+        if (user) {
+          await User.updateOne(
+            { userId: profile.id },
+            { accessToken: accessToken }
+          );
+          return cb(null, user);
+        }
+        //else we have a new user
+        user = await User.create({
           userId: profile.id,
           accessToken: accessToken,
-          refreshToken: refreshToken,
-        };
-        console.log(user);
+        });
         return cb(null, user);
-      });
+      } catch (err) {
+        return cb(err);
+      }
     }
   )
 );
+
+//serialize and deserialize  user
+passport.serializeUser((user, cb) => {
+  cb(null, user._id);
+});
+
+passport.deserializeUser(async (userId, cb) => {
+  cb(null, await User.findById(userId));
+});
