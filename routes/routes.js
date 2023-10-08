@@ -7,12 +7,8 @@ import cookies from "js-cookie";
 
 import { searchSpotify } from "../controllers/searchSpotify.js";
 
-router.use(
-  cors({
-    origin: "http://localhost:8080", // Replace with your client's origin
-    credentials: true, // Enable credentials (cookies) in CORS
-  })
-);
+import { Pod } from "../models/pod.js";
+import { User } from "../models/user.js";
 
 router.use(cookieParser());
 
@@ -49,9 +45,49 @@ router.get("/search/:track", async (req, res) => {
   const { track } = req.params;
   const cookieJson = JSON.parse(req.cookies.userCred);
   const accessToken = cookieJson.accessToken;
-
   const result = await searchSpotify(track, accessToken);
   res.json(result);
+});
+
+//? Pods
+//get user's pods
+router.get("/my-pods", async (req, res) => {
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = cookieJson.userId;
+
+  User.findOne({ userId: userId })
+    .populate("pods") // Populate the 'pods' field
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const userPods = user.pods;
+      res.json(userPods);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+//create new pod
+router.post("/my-pods", async (req, res) => {
+  const { podName } = req.body;
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = cookieJson.userId;
+
+  const newPod = await Pod.create({
+    name: podName,
+    users: [userId],
+    playlists: [],
+    posts: [],
+  });
+  await User.updateOne({ userId: userId }, { $push: { pods: newPod._id } });
+
+  res.json({
+    message: "Pod created",
+  });
 });
 
 export default router;

@@ -17,7 +17,12 @@ mongoose.connect(`${process.env.DATABASE_URL}`);
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:8080", // Replace with your client's origin
+    credentials: true, // Enable credentials (cookies) in CORS
+  })
+);
 app.use(bodyParser.json());
 app.use(cookieParser());
 
