@@ -17,15 +17,6 @@ passport.use(
       callbackURL: redirectUri,
     },
     async (accessToken, refreshToken, expires_in, profile, cb) => {
-      // process.nextTick(() => {
-      //   let user = {
-      //     userId: profile.id,
-      //     accessToken: accessToken,
-      //     refreshToken: refreshToken,
-      //   };
-      //   console.log(user);
-      //   return cb(null, user);
-      // });
       try {
         let user = await User.findOne({ userId: profile.id });
         if (user) {

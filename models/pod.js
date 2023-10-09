@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
+import { Playlist, playlistSchema } from "./playlist.js";
+import { postsSchema } from "./posts.js";
+
 const Schema = mongoose.Schema;
 
 const podSchema = new Schema(
   {
     name: String,
     users: Array,
-    playlists: Array,
-    posts: Array,
+    playlists: [playlistSchema],
+    posts: [postsSchema],
   },
 
   {
