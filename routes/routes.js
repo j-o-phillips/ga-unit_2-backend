@@ -17,6 +17,18 @@ import { User } from "../models/user.js";
 
 router.use(cookieParser());
 
+//!Maybe don't use
+
+function authenticate(req, res, next) {
+  const cookie = req.cookies.userCred;
+  if (!cookie) {
+    console.log("cookie undefined");
+    res.redirect("http://localhost:8080");
+  } else {
+    next();
+  }
+}
+
 //! ROUTES
 //? Login
 //login
@@ -64,7 +76,7 @@ router.get("/search/:track", async (req, res) => {
 
 //? Pods
 //get user's pods
-router.get("/my-pods", async (req, res) => {
+router.get("/my-pods", authenticate, async (req, res) => {
   const cookieJson = JSON.parse(req.cookies.userCred);
   const userId = cookieJson.userId;
 
@@ -84,9 +96,16 @@ router.get("/my-pods", async (req, res) => {
     });
 });
 
+//search all pods
+router.get("/my-pods/:query", async (req, res) => {
+  const { query } = req.params;
+  const foundPod = await Pod.find({ name: query });
+  res.json(foundPod);
+});
+
 //create new pod
 router.post("/my-pods", async (req, res) => {
-  const { podName } = req.body;
+  const { podName, playlistName } = req.body;
   const cookieJson = JSON.parse(req.cookies.userCred);
   const userId = cookieJson.userId;
 
@@ -95,7 +114,7 @@ router.post("/my-pods", async (req, res) => {
     users: [userId],
     playlists: [
       {
-        name: "New Playlist",
+        name: playlistName,
         spotifyId: "",
         tracks: [],
         suggestions: [],
@@ -175,14 +194,22 @@ router.delete("/my-pods/playlist/:pod", async (req, res) => {
 });
 
 //sync to spotify
-router.put("/my-pods/sync", async (req, res) => {
+router.put("/my-pods/:pod/sync", async (req, res) => {
   const cookieJson = JSON.parse(req.cookies.userCred);
   const accessToken = cookieJson.accessToken;
   const userId = cookieJson.userId;
+  const { pod } = req.params;
   const data = req.body;
   let newId;
-
+  console.log(data);
   newId = await syncPlaylist(data, accessToken, userId);
+  //set new id on playlist model
+  if (newId) {
+    const podToUpdate = await Pod.find({ name: pod });
+    //change this when we have multiple playlists
+    podToUpdate[0].playlists[0].spotifyId = newId;
+    await podToUpdate[0].save();
+  }
 
   res.json({
     newId: newId,
@@ -195,7 +222,6 @@ router.get("/my-pods/:pod/posts", async (req, res) => {
   const { pod } = req.params;
   const podToUpdate = await Pod.find({ name: pod });
   const posts = podToUpdate[0].posts;
-  console.log(posts);
   res.json(posts);
 });
 
@@ -213,5 +239,101 @@ router.post("/my-pods/:pod/posts", async (req, res) => {
   const podToUpdate = await Pod.find({ name: pod });
   podToUpdate[0].posts.push(postObj);
   await podToUpdate[0].save();
+});
+
+//delete post
+router.delete("/my-pods/:pod/:postid", async (req, res) => {
+  const { pod, postid } = req.params;
+
+  const podToUpdate = await Pod.find({ name: pod });
+  await podToUpdate[0].posts.id(postid).deleteOne();
+  await podToUpdate[0].save();
+});
+
+//? My Playlists
+//get all playlists
+router.get("/my-playlists", async (req, res) => {
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = cookieJson.accessToken;
+  const config = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  };
+
+  const results = await fetch(
+    "https://api.spotify.com/v1/me/playlists",
+    config
+  ).then((res) => res.json());
+  res.json(results.items);
+});
+
+//get selected playlist
+router.get("/my-playlists/:id", async (req, res) => {
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = cookieJson.accessToken;
+  const playlistId = req.params.id;
+  const config = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  };
+
+  const results = await fetch(
+    `https://api.spotify.com/v1/playlists/${playlistId}`,
+    config
+  ).then((res) => res.json());
+  res.json(results);
+});
+
+//delete from selected playlist
+router.delete("/my-playlists/:id", async (req, res) => {
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = cookieJson.accessToken;
+  const playlistId = req.params.id;
+  const data = req.body;
+
+  const requestBody = JSON.stringify({
+    tracks: [
+      {
+        uri: data.uri,
+      },
+    ],
+  });
+
+  await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: requestBody,
+  });
+  res.json({
+    message: "track deleted",
+  });
+});
+
+//add to selected playlist
+router.post("/my-playlists/:id", async (req, res) => {
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = cookieJson.accessToken;
+  const playlistId = req.params.id;
+  const data = req.body;
+  const requestBody = JSON.stringify({
+    uris: [data.uri],
+  });
+
+  await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: requestBody,
+  });
+  res.json({
+    message: "track added",
+  });
 });
 export default router;

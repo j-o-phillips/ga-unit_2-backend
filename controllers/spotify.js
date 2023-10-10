@@ -48,10 +48,13 @@ async function syncPlaylist(data, accessToken, userId) {
     });
   } else {
     //create new playlist
+    console.log("create new");
     const postData = {
       name: data.playlistName,
       public: false,
     };
+    console.log(postData);
+    console.log(userId);
     await fetch(`${ROOT_URL}/users/${userId}/playlists`, {
       method: "POST",
       headers: {
@@ -60,7 +63,8 @@ async function syncPlaylist(data, accessToken, userId) {
       body: JSON.stringify(postData),
     })
       .then((res) => res.json())
-      .then((res) => (newId = res.id));
+      .then((res) => (newId = res.id))
+      .then((res) => console.log(res));
 
     //populate playlist with our data
     await fetch(`${ROOT_URL}/playlists/${newId}/tracks`, {
