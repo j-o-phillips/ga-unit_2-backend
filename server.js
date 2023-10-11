@@ -2,10 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import session from "express-session";
-import passport from "passport";
 import mongoose from "mongoose";
-import SpotifyWebApi from "spotify-web-api-node";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -25,17 +22,6 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(cookieParser());
-
-app.use(
-  session({
-    secret: "spotify-pods",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use("/", router);
 

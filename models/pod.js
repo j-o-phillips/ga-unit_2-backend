@@ -7,6 +7,7 @@ const Schema = mongoose.Schema;
 const podSchema = new Schema(
   {
     name: String,
+    admins: Array,
     users: Array,
     playlists: [playlistSchema],
     posts: [postsSchema],

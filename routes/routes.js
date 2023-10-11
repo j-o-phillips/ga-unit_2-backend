@@ -31,37 +31,27 @@ function authenticate(req, res, next) {
 
 //! ROUTES
 //? Login
-//login
-router.get(
-  "/auth/spotify",
-  passport.authenticate("spotify", {
-    scope: [
-      "playlist-read-private",
-      "playlist-read-collaborative",
-      "playlist-modify-public",
-      "playlist-modify-private",
-    ],
-  })
-);
+//create or update User
+router.post("/login", async (req, res) => {
+  console.log("login");
+  console.log(req.cookies.userCred);
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = cookieJson.userId;
+  console.log(userId);
 
-//callback
-router.get(
-  "/callback",
-  passport.authenticate("spotify", {
-    failureRedirect: "/",
-  }),
-  function (req, res, next) {
-    //successful authentication, redirect to client
-    let data = JSON.stringify(req.user);
-    res.cookie("userCred", data, { httpOnly: false });
-    res.redirect("http://localhost:8080/home");
+  try {
+    let user = await User.findOne({ userId: userId });
+    if (user) {
+    } else {
+      //else we have a new user
+      user = await User.create({
+        userId: userId,
+        pods: [],
+      });
+    }
+  } catch (err) {
+    console.log(err);
   }
-);
-//logout
-router.get("/logout", (req, res) => {
-  req.logout(() => {
-    res.redirect("http://localhost:8080");
-  });
 });
 
 //? Spotify Search
@@ -111,7 +101,8 @@ router.post("/my-pods", async (req, res) => {
 
   const newPod = await Pod.create({
     name: podName,
-    users: [userId],
+    admins: [userId],
+    users: [],
     playlists: [
       {
         name: playlistName,
@@ -336,4 +327,39 @@ router.post("/my-playlists/:id", async (req, res) => {
     message: "track added",
   });
 });
+
+//join pod
+router.post("/join/:podid", async (req, res) => {
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = cookieJson.userId;
+  const { podid } = req.params;
+  console.log(podid);
+
+  await User.updateOne(
+    { userId: userId }, // Filter the user by ID
+    { $addToSet: { pods: podid } } // Use $addToSet to add the specified pod to the array
+  );
+  await Pod.updateOne({ _id: podid }, { $addToSet: { users: userId } });
+});
+
+//leave pod
+router.delete("/leave/:podid", async (req, res) => {
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = cookieJson.userId;
+  const { podid } = req.params;
+
+  await User.updateOne(
+    { userId: userId },
+    { $pull: { pods: podid } } // Use $pull to remove the specified pod from the array
+  );
+  await Pod.updateOne(
+    { _id: podid },
+    { $pull: { admins: userId } },
+    { $pull: { users: userId } }
+  );
+  res.json({
+    message: "Pod left",
+  });
+});
+
 export default router;
