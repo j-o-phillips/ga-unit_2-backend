@@ -1,5 +1,4 @@
 import express from "express";
-import passport from "passport";
 const router = express.Router();
 import cookieParser from "cookie-parser";
 import cookies from "js-cookie";
@@ -17,14 +16,13 @@ import { User } from "../models/user.js";
 
 router.use(cookieParser());
 
-//!Maybe don't use
-
 function authenticate(req, res, next) {
   const cookie = req.cookies.userCred;
   if (!cookie) {
     console.log("cookie undefined");
-    res.redirect("http://localhost:8080");
   } else {
+    const cookieJson = JSON.parse(req.cookies.userCred);
+    req.userCred = cookieJson;
     next();
   }
 }
@@ -33,11 +31,8 @@ function authenticate(req, res, next) {
 //? Login
 //create or update User
 router.post("/login", async (req, res) => {
-  console.log("login");
-  console.log(req.cookies.userCred);
   const cookieJson = JSON.parse(req.cookies.userCred);
   const userId = cookieJson.userId;
-  console.log(userId);
 
   try {
     let user = await User.findOne({ userId: userId });
@@ -67,8 +62,8 @@ router.get("/search/:track", async (req, res) => {
 //? Pods
 //get user's pods
 router.get("/my-pods", authenticate, async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = cookieJson.userId;
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = req.userCred.userId;
 
   User.findOne({ userId: userId })
     .populate("pods") // Populate the 'pods' field
@@ -94,10 +89,10 @@ router.get("/my-pods/:query", async (req, res) => {
 });
 
 //create new pod
-router.post("/my-pods", async (req, res) => {
+router.post("/my-pods", authenticate, async (req, res) => {
   const { podName, playlistName } = req.body;
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = cookieJson.userId;
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = req.userCred.userId;
 
   const newPod = await Pod.create({
     name: podName,
@@ -121,7 +116,7 @@ router.post("/my-pods", async (req, res) => {
 });
 
 //get specific pod info for component load
-router.get("/my-pods/:pod", async (req, res) => {
+router.get("/my-pods/:pod", authenticate, async (req, res) => {
   console.log("get info for pod");
   //find pod
   const { pod } = req.params;
@@ -133,8 +128,7 @@ router.get("/my-pods/:pod", async (req, res) => {
 
 //? Playlists
 //add track to suggestions
-router.post("/my-pods/suggestions/:pod", async (req, res) => {
-  console.log("post to suhggestions");
+router.post("/my-pods/suggestions/:pod", authenticate, async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
 
@@ -146,8 +140,7 @@ router.post("/my-pods/suggestions/:pod", async (req, res) => {
 });
 
 //remove track from suggestions
-router.delete("/my-pods/suggestions/:pod", async (req, res) => {
-  console.log("delete from suggestions");
+router.delete("/my-pods/suggestions/:pod", authenticate, async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
 
@@ -159,8 +152,7 @@ router.delete("/my-pods/suggestions/:pod", async (req, res) => {
 });
 
 //add track to playlist
-router.post("/my-pods/playlist/:pod", async (req, res) => {
-  console.log("post to playlist");
+router.post("/my-pods/playlist/:pod", authenticate, async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
 
@@ -173,7 +165,7 @@ router.post("/my-pods/playlist/:pod", async (req, res) => {
 });
 
 //remove track from playlist
-router.delete("/my-pods/playlist/:pod", async (req, res) => {
+router.delete("/my-pods/playlist/:pod", authenticate, async (req, res) => {
   console.log("delete from playlist");
   const { pod } = req.params;
   const data = req.body;
@@ -192,7 +184,7 @@ router.put("/my-pods/:pod/sync", async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
   let newId;
-  console.log(data);
+
   newId = await syncPlaylist(data, accessToken, userId);
   //set new id on playlist model
   if (newId) {
@@ -217,10 +209,10 @@ router.get("/my-pods/:pod/posts", async (req, res) => {
 });
 
 //add post
-router.post("/my-pods/:pod/posts", async (req, res) => {
+router.post("/my-pods/:pod/posts", authenticate, async (req, res) => {
   const { pod } = req.params;
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = cookieJson.userId;
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = req.userCred.userId;
   const data = req.body;
   const postObj = {
     author: userId,
@@ -230,6 +222,9 @@ router.post("/my-pods/:pod/posts", async (req, res) => {
   const podToUpdate = await Pod.find({ name: pod });
   podToUpdate[0].posts.push(postObj);
   await podToUpdate[0].save();
+  res.json({
+    message: "post added",
+  });
 });
 
 //delete post
@@ -239,13 +234,18 @@ router.delete("/my-pods/:pod/:postid", async (req, res) => {
   const podToUpdate = await Pod.find({ name: pod });
   await podToUpdate[0].posts.id(postid).deleteOne();
   await podToUpdate[0].save();
+  res.json({
+    message: "post deleted",
+  });
 });
 
 //? My Playlists
 //get all playlists
-router.get("/my-playlists", async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const accessToken = cookieJson.accessToken;
+router.get("/my-playlists", authenticate, async (req, res) => {
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+
+  const accessToken = req.userCred.accessToken;
+
   const config = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -260,9 +260,9 @@ router.get("/my-playlists", async (req, res) => {
 });
 
 //get selected playlist
-router.get("/my-playlists/:id", async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const accessToken = cookieJson.accessToken;
+router.get("/my-playlists/:id", authenticate, async (req, res) => {
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = req.userCred.accessToken;
   const playlistId = req.params.id;
   const config = {
     headers: {
@@ -278,9 +278,9 @@ router.get("/my-playlists/:id", async (req, res) => {
 });
 
 //delete from selected playlist
-router.delete("/my-playlists/:id", async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const accessToken = cookieJson.accessToken;
+router.delete("/my-playlists/:id", authenticate, async (req, res) => {
+  // const accessToken = req.userCred.accessToken;
+  const accessToken = req.userCred.accessToken;
   const playlistId = req.params.id;
   const data = req.body;
 
@@ -292,6 +292,7 @@ router.delete("/my-playlists/:id", async (req, res) => {
     ],
   });
 
+  let status;
   await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
     method: "DELETE",
     headers: {
@@ -299,16 +300,16 @@ router.delete("/my-playlists/:id", async (req, res) => {
       "Content-Type": "application/json",
     },
     body: requestBody,
-  });
+  }).then((res) => (status = res.status));
   res.json({
-    message: "track deleted",
+    status: status,
   });
 });
 
 //add to selected playlist
-router.post("/my-playlists/:id", async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const accessToken = cookieJson.accessToken;
+router.post("/my-playlists/:id", authenticate, async (req, res) => {
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = req.userCred.accessToken;
   const playlistId = req.params.id;
   const data = req.body;
   const requestBody = JSON.stringify({
@@ -329,23 +330,25 @@ router.post("/my-playlists/:id", async (req, res) => {
 });
 
 //join pod
-router.post("/join/:podid", async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = cookieJson.userId;
+router.post("/join/:podid", authenticate, async (req, res) => {
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = req.userCred.userId;
   const { podid } = req.params;
-  console.log(podid);
 
   await User.updateOne(
     { userId: userId }, // Filter the user by ID
     { $addToSet: { pods: podid } } // Use $addToSet to add the specified pod to the array
   );
   await Pod.updateOne({ _id: podid }, { $addToSet: { users: userId } });
+  res.json({
+    message: "pod joined",
+  });
 });
 
 //leave pod
-router.delete("/leave/:podid", async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = cookieJson.userId;
+router.delete("/leave/:podid", authenticate, async (req, res) => {
+  // const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = req.userCred.userId;
   const { podid } = req.params;
 
   await User.updateOne(
