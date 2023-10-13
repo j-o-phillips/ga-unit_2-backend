@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema(
   {
     userId: String,
+    userImageUrl: String,
     pods: [{ type: Schema.Types.ObjectId, ref: "Pod" }],
   },
 

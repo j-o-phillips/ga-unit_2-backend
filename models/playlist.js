@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { suggestionSchema } from "./suggestions.js";
 const Schema = mongoose.Schema;
 
 const playlistSchema = new Schema(
@@ -6,7 +7,7 @@ const playlistSchema = new Schema(
     name: String,
     spotifyId: String,
     tracks: Array,
-    suggestions: Array,
+    suggestions: [suggestionSchema],
   },
 
   {

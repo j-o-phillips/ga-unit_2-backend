@@ -33,6 +33,8 @@ function authenticate(req, res, next) {
 router.post("/login", async (req, res) => {
   const cookieJson = JSON.parse(req.cookies.userCred);
   const userId = cookieJson.userId;
+  const userImageUrl = cookieJson.images[0].url;
+  console.log(userImageUrl);
 
   try {
     let user = await User.findOne({ userId: userId });
@@ -41,6 +43,7 @@ router.post("/login", async (req, res) => {
       //else we have a new user
       user = await User.create({
         userId: userId,
+        userImageUrl: userImageUrl,
         pods: [],
       });
     }
@@ -64,6 +67,7 @@ router.get("/search/:track", async (req, res) => {
 router.get("/my-pods", authenticate, async (req, res) => {
   // const cookieJson = JSON.parse(req.cookies.userCred);
   const userId = req.userCred.userId;
+  console.log(userId);
 
   User.findOne({ userId: userId })
     .populate("pods") // Populate the 'pods' field
@@ -173,6 +177,42 @@ router.delete("/my-pods/playlist/:pod", authenticate, async (req, res) => {
   await removeTrackFromPlaylist(pod, data, Pod);
   res.json({
     message: "track deleted from playlist",
+  });
+});
+
+//like track suggestion
+router.post("/like/:pod", authenticate, async (req, res) => {
+  const userId = req.userCred.userId;
+  const { pod } = req.params;
+  const { trackId } = req.body;
+  const podToUpdate = await Pod.find({ name: pod });
+  const suggestions = podToUpdate[0].playlists[0].suggestions;
+  const foundSuggestion = suggestions.find((suggestion) => {
+    return suggestion.id === trackId;
+  });
+  foundSuggestion.likes.push(userId);
+  await podToUpdate[0].save();
+  res.json({
+    message: "suggestion liked",
+  });
+});
+
+//dislike track suggestion
+router.post("/dislike/:pod", authenticate, async (req, res) => {
+  const userId = req.userCred.userId;
+  const { pod } = req.params;
+  const { trackId } = req.body;
+  const podToUpdate = await Pod.find({ name: pod });
+  const suggestions = podToUpdate[0].playlists[0].suggestions;
+  const foundSuggestion = suggestions.find((suggestion) => {
+    return suggestion.id === trackId;
+  });
+  //find index of user id in likes array
+  const index = foundSuggestion.likes.findIndex((user) => user === userId);
+  foundSuggestion.likes.splice(index, 1);
+  await podToUpdate[0].save();
+  res.json({
+    message: "suggestion disliked",
   });
 });
 
@@ -355,11 +395,8 @@ router.delete("/leave/:podid", authenticate, async (req, res) => {
     { userId: userId },
     { $pull: { pods: podid } } // Use $pull to remove the specified pod from the array
   );
-  await Pod.updateOne(
-    { _id: podid },
-    { $pull: { admins: userId } },
-    { $pull: { users: userId } }
-  );
+  await Pod.updateOne({ _id: podid }, { $pull: { admins: userId } });
+  await Pod.updateOne({ _id: podid }, { $pull: { users: userId } });
   res.json({
     message: "Pod left",
   });
