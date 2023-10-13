@@ -34,7 +34,6 @@ router.post("/login", async (req, res) => {
   const cookieJson = JSON.parse(req.cookies.userCred);
   const userId = cookieJson.userId;
   const userImageUrl = cookieJson.images[0].url;
-  console.log(userImageUrl);
 
   try {
     let user = await User.findOne({ userId: userId });
@@ -77,6 +76,7 @@ router.get("/my-pods", authenticate, async (req, res) => {
       }
 
       const userPods = user.pods;
+      console.log(userPods);
       res.json(userPods);
     })
     .catch((error) => {
@@ -121,7 +121,6 @@ router.post("/my-pods", authenticate, async (req, res) => {
 
 //get specific pod info for component load
 router.get("/my-pods/:pod", authenticate, async (req, res) => {
-  console.log("get info for pod");
   //find pod
   const { pod } = req.params;
   const podToUpdate = await Pod.find({ name: pod });
@@ -170,7 +169,6 @@ router.post("/my-pods/playlist/:pod", authenticate, async (req, res) => {
 
 //remove track from playlist
 router.delete("/my-pods/playlist/:pod", authenticate, async (req, res) => {
-  console.log("delete from playlist");
   const { pod } = req.params;
   const data = req.body;
 
