@@ -8,7 +8,7 @@ import serverless from "serverless-http";
 import dotenv from "dotenv";
 dotenv.config();
 
-import router from "./routes/routes.js";
+import router from "../../routes/routes.js";
 
 mongoose.connect(`${process.env.DATABASE_URL}`);
 
