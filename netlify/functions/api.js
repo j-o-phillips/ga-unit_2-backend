@@ -12,23 +12,17 @@ import router from "./routes/routes.js";
 
 mongoose.connect(`${process.env.DATABASE_URL}`);
 
-const app = express();
+const api = express();
 
-app.use(
+api.use(
   cors({
     origin: "https://pods-ga.netlify.app", // Replace with your client's origin
     credentials: true, // Enable credentials (cookies) in CORS
   })
 );
-app.use(bodyParser.json());
-app.use(cookieParser());
+api.use(bodyParser.json());
+api.use(cookieParser());
 
-app.use("/", router);
+api.use("/api", router);
 
-// const port = process.env.PORT || 4000;
-
-// app.listen(port, () => {
-//   console.log(`Listening on port: ${port}`);
-// });
-
-export const handler = serverless(app);
+export const handler = serverless(api);
