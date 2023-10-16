@@ -27,6 +27,9 @@ function authenticate(req, res, next) {
   }
 }
 
+router.get("/hello", (req, res) => {
+  res.send("hello world");
+});
 //! ROUTES
 //? Login
 //create or update User
