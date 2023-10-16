@@ -279,7 +279,7 @@ router.delete("/my-pods/:pod/:postid", async (req, res) => {
 
 //? My Playlists
 //get all playlists
-router.get("/my-playlists", async (req, res) => {
+router.get("/my-playlists", authenticate, async (req, res) => {
   // const cookieJson = JSON.parse(req.cookies.userCred);
 
   const accessToken = req.userCred.accessToken;

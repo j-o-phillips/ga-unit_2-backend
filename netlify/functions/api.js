@@ -23,6 +23,6 @@ api.use(
 api.use(bodyParser.json());
 api.use(cookieParser());
 
-api.use("/", router);
+api.use("/api/", router);
 
 export const handler = serverless(api);
