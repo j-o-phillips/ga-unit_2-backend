@@ -178,10 +178,9 @@ router.delete("/my-pods/playlist/:pod", async (req, res) => {
 });
 
 //like track suggestion
-router.post("/like/:pod", authenticate, async (req, res) => {
-  const userId = req.userCred.userId;
+router.post("/like/:pod", async (req, res) => {
   const { pod } = req.params;
-  const { trackId } = req.body;
+  const { trackId, userId } = req.body;
   const podToUpdate = await Pod.find({ name: pod });
   const suggestions = podToUpdate[0].playlists[0].suggestions;
   const foundSuggestion = suggestions.find((suggestion) => {
