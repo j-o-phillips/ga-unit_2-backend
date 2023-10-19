@@ -130,7 +130,7 @@ router.get("/pod/my-pods/:pod", async (req, res) => {
 
 //? Playlists
 //add track to suggestions
-router.post("/my-pods/suggestions/:pod", authenticate, async (req, res) => {
+router.post("/my-pods/suggestions/:pod", async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
 
@@ -142,7 +142,7 @@ router.post("/my-pods/suggestions/:pod", authenticate, async (req, res) => {
 });
 
 //remove track from suggestions
-router.delete("/my-pods/suggestions/:pod", authenticate, async (req, res) => {
+router.delete("/my-pods/suggestions/:pod", async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
 
