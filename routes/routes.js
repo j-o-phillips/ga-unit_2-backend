@@ -251,7 +251,6 @@ router.get("/my-pods/:pod/posts", async (req, res) => {
 //add post
 router.post("/my-pods/:pod/posts", authenticate, async (req, res) => {
   const { pod } = req.params;
-  // const cookieJson = JSON.parse(req.cookies.userCred);
   const userId = req.userCred.userId;
   const data = req.body;
   const postObj = {
@@ -281,9 +280,7 @@ router.delete("/my-pods/:pod/:postid", async (req, res) => {
 
 //? My Playlists
 //get all playlists
-router.get("/my-playlists", authenticate, async (req, res) => {
-  // const cookieJson = JSON.parse(req.cookies.userCred);
-
+router.get("/my-playlists", async (req, res) => {
   const accessToken = req.userCred.accessToken;
 
   const config = {
