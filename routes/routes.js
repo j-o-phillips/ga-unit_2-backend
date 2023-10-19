@@ -280,8 +280,8 @@ router.delete("/my-pods/:pod/:postid", async (req, res) => {
 
 //? My Playlists
 //get all playlists
-router.get("/my-playlists", async (req, res) => {
-  const accessToken = req.userCred.accessToken;
+router.get("/get-playlists/:accessToken", async (req, res) => {
+  const { accessToken } = req.params;
 
   const config = {
     headers: {
