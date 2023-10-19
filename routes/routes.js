@@ -55,10 +55,8 @@ router.post("/login", async (req, res) => {
 
 //? Spotify Search
 //search
-router.get("/search/:track", async (req, res) => {
-  const { track } = req.params;
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const accessToken = cookieJson.accessToken;
+router.get("/searchSpotify/:track/:accessToken", async (req, res) => {
+  const { track, accessToken } = req.params;
   const result = await searchSpotify(track, accessToken);
   res.json(result);
 });
