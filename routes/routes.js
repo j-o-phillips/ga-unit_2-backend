@@ -34,8 +34,9 @@ router.get("/hello", (req, res) => {
 //? Login
 //create or update User
 router.post("/login", async (req, res) => {
-  const { userId, images } = req.body;
-  const userImageUrl = images[0].url;
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const userId = cookieJson.userId;
+  const userImageUrl = cookieJson.images[0].url;
 
   try {
     let user = await User.findOne({ userId: userId });
@@ -55,8 +56,10 @@ router.post("/login", async (req, res) => {
 
 //? Spotify Search
 //search
-router.get("/search/:track/:accessToken", async (req, res) => {
-  const { track, accessToken } = req.params;
+router.get("/search/:track", async (req, res) => {
+  const { track } = req.params;
+  const cookieJson = JSON.parse(req.cookies.userCred);
+  const accessToken = cookieJson.accessToken;
   const result = await searchSpotify(track, accessToken);
   res.json(result);
 });
