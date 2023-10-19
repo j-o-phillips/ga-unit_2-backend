@@ -245,7 +245,7 @@ router.get("/my-pods/:pod/posts", async (req, res) => {
 });
 
 //add post
-router.post("/my-pods/:pod/posts", authenticate, async (req, res) => {
+router.post("/my-pods/:pod/posts", async (req, res) => {
   const { pod } = req.params;
   const { content, userId } = req.body;
   const postObj = {
