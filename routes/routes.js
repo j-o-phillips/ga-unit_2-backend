@@ -362,9 +362,8 @@ router.post("/my-playlists/:id", authenticate, async (req, res) => {
 });
 
 //join pod
-router.post("/join/:podid", authenticate, async (req, res) => {
-  // const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = req.userCred.userId;
+router.post("/join/:podid", async (req, res) => {
+  const { userId } = req.body;
   const { podid } = req.params;
 
   await User.updateOne(
@@ -378,9 +377,8 @@ router.post("/join/:podid", authenticate, async (req, res) => {
 });
 
 //leave pod
-router.delete("/leave/:podid", authenticate, async (req, res) => {
-  // const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = req.userCred.userId;
+router.delete("/leave/:podid", async (req, res) => {
+  const { userId } = req.body;
   const { podid } = req.params;
 
   await User.updateOne(
