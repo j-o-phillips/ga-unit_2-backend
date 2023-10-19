@@ -14,7 +14,12 @@ mongoose.connect(`${process.env.DATABASE_URL}`);
 
 const api = express();
 
-api.use(cors());
+api.use(
+  cors({
+    origin: "https://pods-ga.netlify.app", // Replace with your client's origin
+    credentials: true, // Enable credentials (cookies) in CORS
+  })
+);
 api.use(bodyParser.json());
 api.use(cookieParser());
 
