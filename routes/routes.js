@@ -122,14 +122,14 @@ router.post("/my-pods", async (req, res) => {
 });
 
 //get specific pod info for component load
-// router.get("/my-pods/:pod", authenticate, async (req, res) => {
-//   //find pod
-//   const { pod } = req.params;
-//   const podToUpdate = await Pod.find({ name: pod });
-//   //! replace when mutiple playlists
-//   const podInfo = podToUpdate[0].playlists[0];
-//   res.json(podInfo);
-// });
+router.get("/pod/my-pods/:pod", async (req, res) => {
+  //find pod
+  const { pod } = req.params;
+  const podToUpdate = await Pod.find({ name: pod });
+  //! replace when mutiple playlists
+  const podInfo = podToUpdate[0].playlists[0];
+  res.json(podInfo);
+});
 
 //? Playlists
 //add track to suggestions
