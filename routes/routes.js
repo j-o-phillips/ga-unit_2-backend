@@ -97,9 +97,8 @@ router.get("/search/my-pods/:query", async (req, res) => {
 
 //create new pod
 router.post("/my-pods", authenticate, async (req, res) => {
-  const { podName, playlistName } = req.body;
+  const { podName, playlistName, userId } = req.body;
   // const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = req.userCred.userId;
 
   const newPod = await Pod.create({
     name: podName,
