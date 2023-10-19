@@ -34,9 +34,8 @@ router.get("/hello", (req, res) => {
 //? Login
 //create or update User
 router.post("/login", async (req, res) => {
-  const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = cookieJson.userId;
-  const userImageUrl = cookieJson.images[0].url;
+  const { userId, images } = req.body;
+  const userImageUrl = images[0].url;
 
   try {
     let user = await User.findOne({ userId: userId });
