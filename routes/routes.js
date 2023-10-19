@@ -154,7 +154,7 @@ router.delete("/my-pods/suggestions/:pod", async (req, res) => {
 });
 
 //add track to playlist
-router.post("/my-pods/playlist/:pod", authenticate, async (req, res) => {
+router.post("/my-pods/playlist/:pod", async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
 
@@ -167,7 +167,7 @@ router.post("/my-pods/playlist/:pod", authenticate, async (req, res) => {
 });
 
 //remove track from playlist
-router.delete("/my-pods/playlist/:pod", authenticate, async (req, res) => {
+router.delete("/my-pods/playlist/:pod", async (req, res) => {
   const { pod } = req.params;
   const data = req.body;
 
