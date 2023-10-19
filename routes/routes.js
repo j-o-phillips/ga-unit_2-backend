@@ -247,11 +247,10 @@ router.get("/my-pods/:pod/posts", async (req, res) => {
 //add post
 router.post("/my-pods/:pod/posts", authenticate, async (req, res) => {
   const { pod } = req.params;
-  const userId = req.userCred.userId;
-  const data = req.body;
+  const { content, userId } = req.body;
   const postObj = {
     author: userId,
-    content: data.content,
+    content: content,
   };
 
   const podToUpdate = await Pod.find({ name: pod });
