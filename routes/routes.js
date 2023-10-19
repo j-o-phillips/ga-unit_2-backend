@@ -66,9 +66,9 @@ router.get("/search/:track", async (req, res) => {
 
 //? Pods
 //get user's pods
-router.get("/my-pods", authenticate, async (req, res) => {
+router.get("/my-pods/:userId", async (req, res) => {
   // const cookieJson = JSON.parse(req.cookies.userCred);
-  const userId = req.userCred.userId;
+  const { userId } = req.params;
   console.log(userId);
 
   User.findOne({ userId: userId })
@@ -89,11 +89,11 @@ router.get("/my-pods", authenticate, async (req, res) => {
 });
 
 //search all pods
-router.get("/my-pods/:query", async (req, res) => {
-  const { query } = req.params;
-  const foundPod = await Pod.find({ name: query });
-  res.json(foundPod);
-});
+// router.get("/my-pods/:query", async (req, res) => {
+//   const { query } = req.params;
+//   const foundPod = await Pod.find({ name: query });
+//   res.json(foundPod);
+// });
 
 //create new pod
 router.post("/my-pods", authenticate, async (req, res) => {
@@ -123,14 +123,14 @@ router.post("/my-pods", authenticate, async (req, res) => {
 });
 
 //get specific pod info for component load
-router.get("/my-pods/:pod", authenticate, async (req, res) => {
-  //find pod
-  const { pod } = req.params;
-  const podToUpdate = await Pod.find({ name: pod });
-  //! replace when mutiple playlists
-  const podInfo = podToUpdate[0].playlists[0];
-  res.json(podInfo);
-});
+// router.get("/my-pods/:pod", authenticate, async (req, res) => {
+//   //find pod
+//   const { pod } = req.params;
+//   const podToUpdate = await Pod.find({ name: pod });
+//   //! replace when mutiple playlists
+//   const podInfo = podToUpdate[0].playlists[0];
+//   res.json(podInfo);
+// });
 
 //? Playlists
 //add track to suggestions

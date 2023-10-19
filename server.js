@@ -25,10 +25,10 @@ app.use(cookieParser());
 
 app.use("/", router);
 
-// const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000;
 
-// app.listen(port, () => {
-//   console.log(`Listening on port: ${port}`);
-// });
+app.listen(port, () => {
+  console.log(`Listening on port: ${port}`);
+});
 
 export const handler = serverless(app);
