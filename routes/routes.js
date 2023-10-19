@@ -127,7 +127,7 @@ router.get("/pod/my-pods/:pod", async (req, res) => {
   const { pod } = req.params;
   const podToUpdate = await Pod.find({ name: pod });
   //! replace when mutiple playlists
-  const podInfo = podToUpdate[0].playlists[0];
+  const podInfo = podToUpdate[0];
   res.json(podInfo);
 });
 
