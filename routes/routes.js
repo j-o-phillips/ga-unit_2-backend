@@ -89,11 +89,11 @@ router.get("/my-pods/:userId", async (req, res) => {
 });
 
 //search all pods
-// router.get("/my-pods/:query", async (req, res) => {
-//   const { query } = req.params;
-//   const foundPod = await Pod.find({ name: query });
-//   res.json(foundPod);
-// });
+router.get("/search/my-pods/:query", async (req, res) => {
+  const { query } = req.params;
+  const foundPod = await Pod.find({ name: query });
+  res.json(foundPod);
+});
 
 //create new pod
 router.post("/my-pods", authenticate, async (req, res) => {
