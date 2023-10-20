@@ -16,7 +16,7 @@ const api = express();
 
 api.use(
   cors({
-    origin: "https://pods-ga.netlify.app", // Replace with your client's origin
+    origin: "https://pods-ga.netlify.app/api", // Replace with your client's origin
     credentials: true, // Enable credentials (cookies) in CORS
   })
 );
