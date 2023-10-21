@@ -38,21 +38,17 @@ router.post("/login", async (req, res) => {
   const userImageUrl = images[0].url;
   console.log(userId, userImageUrl);
 
-  try {
-    let user = await User.findOne({ userId: userId });
+  let user = await User.findOne({ userId: userId });
+  console.log(user);
+  if (user) {
+  } else {
+    //else we have a new user
+    user = await User.create({
+      userId: userId,
+      userImageUrl: userImageUrl,
+      pods: [],
+    });
     console.log(user);
-    if (user) {
-    } else {
-      //else we have a new user
-      user = await User.create({
-        userId: userId,
-        userImageUrl: userImageUrl,
-        pods: [],
-      });
-      console.log(user);
-    }
-  } catch (err) {
-    console.log(err);
   }
 });
 
