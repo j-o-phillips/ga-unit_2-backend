@@ -338,8 +338,8 @@ Portfolio Link: [Portfolio](https://github.com/jake-o-phillips/spaceacademy-back
 [license-url]: https://github.com/j-o-phillips/spaceacademy-backend/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/jake-phillips-developer/
-[product-screenshot]: src/assets/readme/product.png
-[erd-screenshot]: src/assets/readme/erd.png
-[excal-screenshot]: src/assets/readme/excal1.png
+[product-screenshot]: assets/readme/product.png
+[erd-screenshot]: assets/readme/erd.png
+[excal-screenshot]: assets/readme/excal1.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
