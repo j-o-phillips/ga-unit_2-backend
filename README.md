@@ -84,28 +84,36 @@ The following General Assembly Software Engineering Immersive Unit 2 project is 
 <!-- GETTING STARTED -->
 
 ## Getting Started
+For ease of deployment, this project is split into two repositories, frontend and backend.
+This is the backend repo. Find the frontend repo [here](https://github.com/j-o-phillips/ga-unit_2-frontend).
 
-### Prerequisites
-
-- npm
-  ```sh
-  npm install npm@latest -g
-  ```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Installation
 
-1. Clone the repo
+Running this app locally requires running the frontend and backend servers simultaneously. 
+1. Clone the frontend repo
    ```sh
-   git clone https://github.com/j-o-phillips/ga-unit_2-frontend
+   git clone https://github.com/jake-o-phillips/ga-unit_2-frontend.git
    ```
-2. Install NPM packages
+2. Clone the backend repo
+   ```sh
+   git clone https://github.com/jake-o-phillips/ga-unit_2-backend.git
+   ```
+   
+3. Install NPM packages in the frontend and backend directories
    ```sh
    npm install
    ```
-3. Run the development server
+4. Run the backend server from within the backend directory
    ```sh
-   npm run serve
+   node server.js
    ```
+5. Run the frontend server from within the frontend directory
+   ```sh
+   npm serve
+   ```
+6. Navigate to http://localhost:8080/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -131,11 +139,11 @@ The following were the General Assembly requirements for this project:
 
 - I created an ERD, describing my database model. I decided to use mostly embedded models as it seemed logical as each pod model would contain instances of the other models. However, the User model would be referenced separately as I wanted to be able to quickly access all the users of the site
 
-[![ERD Screen shot][erd-screenshot]]
+![ERD Screen shot][erd-screenshot]
 
 - I made a couple of sketches of the page designs and decided to use css grids to build an intuitive UI
 
-[![Excalidraw Screen shot][excal-screenshot]]
+![Excalidraw Screen shot][excal-screenshot]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -152,7 +160,7 @@ For authentication I chose spotify’s authorization code PKCE flow. Spotify’s
 
 The main part of the app revolves around groups of users which I called ‘pods’. The first routes I wrote handled the creation and reading of these pods from the database. The user who creates the pod is automatically set as an admin, and an initial playlist is assigned to the pod. With these routes in place, I needed to design a page to view the details of the specific pod. I used a grid design to create an intuitive interface for interacting with the pod. One of my learning points for this project is not to base my designs so heavily on grids as the UI worked very well for horizontal screens but less well on mobile.
 
-[![Product Name Screen Shot][product-screenshot]]
+![Product Name Screen Shot][product-screenshot]
 
 ### Spotify
 
@@ -330,8 +338,8 @@ Portfolio Link: [Portfolio](https://github.com/jake-o-phillips/spaceacademy-back
 [license-url]: https://github.com/j-o-phillips/spaceacademy-backend/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/jake-phillips-developer/
-[product-screenshot]: assets/readme/product.png
-[erd-screenshot]: assets/readme/erd.png
-[excal-screenshot]: assets/readme/excal1.png
+[product-screenshot]: src/assets/readme/product.png
+[erd-screenshot]: src/assets/readme/erd.png
+[excal-screenshot]: src/assets/readme/excal1.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
